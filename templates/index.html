@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Intérprete Bazilio - Coquette Edition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="coquette-container">
+        <header class="header-box">
+            <h2> Intérprete Bazilio </h2>
+            
+        </header>
+
+        <div class="card-box">
+            <h3> Código Fuente (.bzl)</h3>
+            <p class="subtitle">Escribe tus notas musicales con estilo:</p>
+            <textarea id="codigoBzl" spellcheck="false">Main |:
+    <w> "Melodia Coquette"
+    toca C4
+    toca E4
+    toca E4
+    toca C6
+:|</textarea>
+            <button class="btn-cute" onclick="enviarAlBackend()"> Compila y Genera PDF</button>
+        </div>
+
+        <div class="card-box">
+            <h3>🖥️ Consola en Vivo</h3>
+            <pre id="consolaOutput" class="console-box">Esperando acción...</pre>
+        </div>
+
+        <div class="card-box results-box" id="resultadosCard" style="display: none;">
+            <h3> Archivos Listos</h3>
+            <p class="subtitle">¡Tu obra maestra ha sido procesada!</p>
+            <div class="download-grid">
+                <button class="btn-file" onclick="alert('¡PDF generado con éxito!')">Ver Archivo .pdf</button>
+                <button class="btn-file" onclick="alert('¡Audio reproducido!')"> Escuchar Audio</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function enviarAlBackend() {
+            const codigo = document.getElementById('codigoBzl').value;
+            const consola = document.getElementById('consolaOutput');
+            const resultados = document.getElementById('resultadosCard');
+
+            consola.textContent = " Conectando con el servidor de Python...\n";
+            
+            try {
+                const respuesta = await fetch('/compilar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codigo: codigo })
+                });
+
+                const resultado = await respuesta.json();
+                consola.textContent = resultado.logs;
+
+                if (resultado.success) {
+                    resultados.style.display = "block";
+                }
+            } catch (error) {
+                consola.textContent = " Error de conexión con Flask: " + error;
+            }
+        }
+    </script>
+
+</body>
+</html>
